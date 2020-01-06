@@ -374,33 +374,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
 });
 
 function modalEventListner(){
-    const modal = document.querySelector('.modal');
     
     const addNewTodoIcon = document.querySelector('.addNewTodo');
-    addNewTodoIcon.addEventListener('click', function(){
-        const id_attr = modal.querySelector('input[type="date"]').value;
-        let newTodoItem = modal.querySelector('input[name="todo"]');
-        
-        if( newTodoItem.value == "") {
-            alert('할 일을 입력해주세요.');
-            return;
-        }
-        if(!todoItems[id_attr]) todoItems[id_attr] =[];
+    addNewTodoIcon.addEventListener('click', addNewTodoItem);
 
-        todoItems[id_attr].push(newTodoItem.value);
-        
-        const dateElement = document.getElementById(id_attr);
-        const content = dateElement.querySelector('.date-content');
-        const todoList = content.querySelector('ul');
-
-        const liElement = document.createElement('li');
-        liElement.innerText = newTodoItem.value;
-        todoList.appendChild(liElement);
-
-        newTodoItem.value = '';
-        modalClose();
-
+    const text_newTodo = document.querySelector('input[name="todo"]');
+    text_newTodo.addEventListener('keypress', event=>{
+        if( event.key ==='Enter') addNewTodoItem();
     });
+
 
     const resetNewTodoIcon = document.querySelector('.resetNewTodo');
     resetNewTodoIcon.addEventListener('click', modalClose);
@@ -410,7 +392,31 @@ function modalEventListner(){
 
     
 }
+function addNewTodoItem(){
+    const modal = document.querySelector('.modal');
+    const id_attr = modal.querySelector('input[type="date"]').value;
+    let newTodoItem = modal.querySelector('input[name="todo"]');
+    
+    if( newTodoItem.value == "") {
+        alert('할 일을 입력해주세요.');
+        return;
+    }
+    if(!todoItems[id_attr]) todoItems[id_attr] =[];
 
+    todoItems[id_attr].push(newTodoItem.value);
+    
+    const dateElement = document.getElementById(id_attr);
+    const content = dateElement.querySelector('.date-content');
+    const todoList = content.querySelector('ul');
+
+    const liElement = document.createElement('li');
+    liElement.innerText = newTodoItem.value;
+    todoList.appendChild(liElement);
+
+    newTodoItem.value = '';
+    modalClose();
+
+}
 function modalClose(){
     const modal = document.querySelector('.modal');
     modal.classList.add('hidden');
