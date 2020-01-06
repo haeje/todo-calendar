@@ -1,23 +1,28 @@
 table {
-    width: 90%;
-    font-family: 'Ubuntu', sans-serif;
-  }
-  th, td {
-    position: relative;
-    border: 1px solid rgba(55, 53, 47, 0.16);
-    height: 100px;
-    width: 100px;
-    vertical-align: top;
-    max-width: 100px;
-    overflow: hidden;
-  }
-  th{
-    height: 2.5vh;
-  }
+  margin: 0 auto;
+  font-family: 'Ubuntu', sans-serif;
+}
+th, td {
+  position: relative;
+  border: 1px solid rgba(55, 53, 47, 0.16);
+  height: 100px;
+  width: 10rem;
+  vertical-align: top;
+  max-width: 200px;
+  overflow: hidden;
+}
+th{
+  height: 2.5vh;
+}
 
-  .add-todo-icon{
-    visibility: hidden;
-  }
+#calendar{
+  width:100%;
+  margin: 0 auto;
+}
+
+.add-todo-icon{
+  visibility: hidden;
+}
 
   .day-column:hover .add-todo-icon{ visibility: visible }
 
