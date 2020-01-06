@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://kit.fontawesome.com/9b5c9b0a25.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu&display=swap" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="calendar.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="calendar"></div>
+    
+    <div class="modal hidden">
+        <input type="hidden" name="id_attr" value="">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            새로운 일정을 작성해주세요.
+            <input type="text" name="todo" id="newTodo">
+            <span class="addNewTodo"><i class="fas fa-pen"></i></span>
+            <span class="resetNewTodo"><i class="fas fa-times"></i></span>
+        </div>
+    </div>
+    <script src="./calendar.js"></script>
+</body>
+</html>
