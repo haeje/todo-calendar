@@ -169,7 +169,7 @@ function makeNextMonthDayInfo(calendarElement){
 
         processingWeekend(idx_day, td_dayColumn);
         idx_day++;
-        
+
         tr_week.appendChild(td_dayColumn);
         dateOfNextMonth++;
     }
