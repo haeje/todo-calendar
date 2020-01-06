@@ -45,7 +45,8 @@ const holidays = [
 	}
 ]
 const todoItems = {
-    "2020-01-05":['test']
+    "2020-01-05":['test'],
+    "2020-01-08":['d-day']
 }
 
 const today = new Date();

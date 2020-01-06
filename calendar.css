@@ -11,6 +11,7 @@ th, td {
   max-width: 200px;
   overflow: hidden;
 }
+
 th{
   height: 2.5vh;
 }
@@ -133,4 +134,9 @@ th{
 
 .addNewTodo, .resetNewTodo{
   font-size: 25px;
+}
+
+
+#addTodoDate, #newTodo{
+  width: 200px;
 }
