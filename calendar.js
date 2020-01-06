@@ -53,21 +53,6 @@ let CalendarStandardDay = new Date();
 let firstDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 1);
 let lastDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth() + 1, 0);
 
-
-function changeMonth(off, calendar){
-    CalendarStandardDay = changeMonthOffset(off);
-    firstDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 1);
-    lastDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth() + 1, 0);
-
-    calendar.querySelector('.thisMonthTitle').innerText = makeCurrentMonthInfo(CalendarStandardDay);
-    makeThisMonth(calendar);
-}
-
-function changeMonthOffset(off){
-    return new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth()+off, CalendarStandardDay.getDate());
-}
-
-
 function makeCalendar(){
     const calendarElement = makeCalendarFrame();
     makeThisMonth(calendarElement);
@@ -102,6 +87,7 @@ function makePreMonthDayInfo(calendarElement){
     const preMonthlastDate = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 0).getDate();
 
     let dateOfPreMonth = preMonthlastDate - firstDayOfThisMonth_idx + 1;
+    let idx_day = 0;
     while( dateOfPreMonth <= preMonthlastDate ){
         const td_dayColumn = document.createElement('td');
         tr_week.appendChild(td_dayColumn);
@@ -112,13 +98,23 @@ function makePreMonthDayInfo(calendarElement){
         makeDateHeader(td_dayColumn, id_attr, dateOfPreMonth, CalendarStandardDay);
         makeDateContent(td_dayColumn);
 
+        processingWeekend(idx_day, td_dayColumn);
+        idx_day++;
         dateOfPreMonth++;
     }
 
     tbody_calendar.appendChild(tr_week);
 }
+function changeMonthOffset(off){
+    return new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth()+off, CalendarStandardDay.getDate());
+}
 function makeId(dateObj, date){
     return `${dateObj.getFullYear()}-${addZeroIfOneDigit(dateObj.getMonth()+1) }-${addZeroIfOneDigit(date)}`; 
+}
+function processingWeekend(date, td_dayColumn){
+    if( isWeekend(date) ){
+        td_dayColumn.classList.add('weekend');
+    }
 }
 
 function makeCurrentMonthDayInfo(calendarElement){
@@ -140,12 +136,10 @@ function makeCurrentMonthDayInfo(calendarElement){
         makeDateHeader(td_dayColumn, id_attr, date, CalendarStandardDay);
         makeDateContent(td_dayColumn);
 
+        processingWeekend(idx_day, td_dayColumn);
+        
         tr_week.appendChild(td_dayColumn);
-
-        if( isWeekend(idx_day) ){
-            td_dayColumn.classList.add('weekend');
-        }
-
+        
         idx_day++;
         if( isEndOfThisWeek(idx_day) ){
             idx_day = 0;
@@ -163,6 +157,7 @@ function makeNextMonthDayInfo(calendarElement){
     const dateForId = new Date(CalendarStandardDay.getFullYear(),CalendarStandardDay.getMonth()+1, 1 );
     
     let dateOfNextMonth = 1;
+    let idx_day = idx_lastDay+1;
     while( dateOfNextMonth <= availableDateCountOfNextMonth ){
         const td_dayColumn = document.createElement('td');
         const id_attr = makeId(dateForId, dateOfNextMonth);
@@ -171,6 +166,9 @@ function makeNextMonthDayInfo(calendarElement){
         settingDateAttr(td_dayColumn, id_attr);
         makeDateHeader(td_dayColumn, id_attr, dateOfNextMonth, CalendarStandardDay);
         makeDateContent(td_dayColumn);
+
+        processingWeekend(idx_day, td_dayColumn);
+        idx_day++;
         
         tr_week.appendChild(td_dayColumn);
         dateOfNextMonth++;
@@ -346,6 +344,17 @@ function makeCalendarHeader(calendar){
     div_CalendarHeader.appendChild(span_toNextMonth);
     calendar.appendChild(div_CalendarHeader);
 }
+function changeMonth(off, calendar){
+    CalendarStandardDay = changeMonthOffset(off);
+    firstDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 1);
+    lastDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth() + 1, 0);
+
+    calendar.querySelector('.thisMonthTitle').innerText = makeCurrentMonthInfo(CalendarStandardDay);
+    makeThisMonth(calendar);
+}
+
+
+
 
 function makeCurrentMonthInfo(CalendarStandardDay){
     return `${CalendarStandardDay.getMonth()+1}월 ${CalendarStandardDay.getFullYear()}년`;
