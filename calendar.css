@@ -130,3 +130,7 @@ th{
   color: rgba(55, 53, 47, 0.4);
 
 }
+
+.addNewTodo, .resetNewTodo{
+  font-size: 25px;
+}

@@ -237,7 +237,7 @@ function makeDateHeader(tdElement, id_attr, date, CalendarStandardDay){
 }
 function openAddModal(id_attr){
     const modal = document.querySelector('.modal');
-    modal.querySelector('input[name="id_attr"]').value = id_attr;
+    modal.querySelector('input[type="date"]').value=id_attr;
     modal.classList.remove('hidden');
     
 }
@@ -368,7 +368,7 @@ function modalEventListner(){
     
     const addNewTodoIcon = document.querySelector('.addNewTodo');
     addNewTodoIcon.addEventListener('click', function(){
-        const id_attr = modal.querySelector('input[name="id_attr"]').value;
+        const id_attr = modal.querySelector('input[type="date"]').value;
         let newTodoItem = modal.querySelector('input[name="todo"]');
         
         if( newTodoItem.value == "") {
@@ -393,9 +393,7 @@ function modalEventListner(){
     });
 
     const resetNewTodoIcon = document.querySelector('.resetNewTodo');
-    resetNewTodoIcon.addEventListener('click', function(){
-        modal.querySelector('input[name="todo"]').value = '';
-    });
+    resetNewTodoIcon.addEventListener('click', modalClose);
 
     const modalOverlay = document.querySelector('.modal-overlay');
     modalOverlay.addEventListener('click', modalClose)
