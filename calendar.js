@@ -76,31 +76,33 @@ function makeDateThisMonth(calendarElement){
     makeNextMonthDayInfo(calendarElement);
 }
 
+
 function makePreMonthDayInfo(calendarElement){
     const tbody_calendar = calendarElement.querySelector('tbody');
     let tr_week = document.createElement('tr');
     
     const firstDayOfThisMonth_idx = firstDayOfThisMonth.getDay();
-    const dateForId = changeMonthOffset(-1);
-
-    
     const preMonthlastDate = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 0).getDate();
-
+    
     let dateOfPreMonth = preMonthlastDate - firstDayOfThisMonth_idx + 1;
+    
     let idx_day = 0;
     while( dateOfPreMonth <= preMonthlastDate ){
         const td_dayColumn = document.createElement('td');
-        tr_week.appendChild(td_dayColumn);
+        const dateForId = changeMonthOffset(-1);
         const id_attr = makeId(dateForId, dateOfPreMonth);
         
-        td_dayColumn.classList.add('not-this-month');
         settingDateAttr(td_dayColumn, id_attr);
         makeDateHeader(td_dayColumn, id_attr, dateOfPreMonth, CalendarStandardDay);
         makeDateContent(td_dayColumn);
-
+        
         processingWeekend(idx_day, td_dayColumn);
         idx_day++;
+        
         dateOfPreMonth++;
+        
+        td_dayColumn.classList.add('not-this-month');
+        tr_week.appendChild(td_dayColumn);
     }
 
     tbody_calendar.appendChild(tr_week);
@@ -111,16 +113,72 @@ function changeMonthOffset(off){
 function makeId(dateObj, date){
     return `${dateObj.getFullYear()}-${addZeroIfOneDigit(dateObj.getMonth()+1) }-${addZeroIfOneDigit(date)}`; 
 }
+function addZeroIfOneDigit(number){
+    return (number < 10 ) ? '0'+number : number;
+}
+function settingDateAttr(tdElement, id_attr){
+    tdElement.setAttribute('id', id_attr);
+    tdElement.classList.add('day-column');
+}
+function makeDateHeader(tdElement, id_attr, date, CalendarStandardDay){
+    const div = document.createElement('div');
+    div.classList.add('date-header');
+
+    const span_addTodoIcon = document.createElement('span');
+    span_addTodoIcon.innerHTML = `<i class="fas fa-plus"></i>`;
+    span_addTodoIcon.classList.add("add-todo-icon");
+    span_addTodoIcon.addEventListener('click', function(event){
+        event.stopPropagation();
+        openAddModal(id_attr);
+    })
+
+    const span_holiday = document.createElement('span');
+    span_holiday.classList.add('holiday');
+
+    const span_date = document.createElement('span');
+    span_date.classList.add('date')
+    span_date.innerText = date;
+    // span_date.innerText = id_attr;
+
+    if( isToday(date, today, CalendarStandardDay)) span_date.classList.add('today')    
+
+    div.appendChild(span_addTodoIcon);
+    div.appendChild(span_holiday);
+    div.appendChild(span_date);
+    
+    tdElement.appendChild(div);
+}
+function openAddModal(id_attr){
+    const modal = document.querySelector('.modal');
+    modal.querySelector('input[type="date"]').value=id_attr;
+    modal.classList.remove('hidden');
+    
+}
+function isToday(date, today, CalendarStandardDay){
+  return today.getDate() === date 
+        && today.getMonth() === CalendarStandardDay.getMonth() 
+        && today.getFullYear() === CalendarStandardDay.getFullYear();
+}
+function makeDateContent(tdElement){
+    const div_dateContent = document.createElement('div');
+    div_dateContent.classList.add('date-content');
+    const todoList = document.createElement('ul');
+    div_dateContent.appendChild(todoList);
+    tdElement.appendChild(div_dateContent);
+}
 function processingWeekend(date, td_dayColumn){
     if( isWeekend(date) ){
         td_dayColumn.classList.add('weekend');
     }
 }
+function isWeekend(idx_day){
+    return idx_day === 0 || idx_day === 6;
+}
 
 function makeCurrentMonthDayInfo(calendarElement){
     const tbody = calendarElement.querySelector('tbody');
 
-    let idx_day = getDayIndexOfFirstDay(calendarElement);
+    let idx_day = firstDayOfThisMonth.getDay();
     let tr_week = getFirstWeek(calendarElement);
 
     for( let date = 1 ; date <= lastDayOfThisMonth.getDate() ; date++ ){
@@ -149,16 +207,23 @@ function makeCurrentMonthDayInfo(calendarElement){
     }
     tbody.appendChild(tr_week);
 }
+function getFirstWeek(calendarElement){
+    return calendarElement.querySelector('tbody > tr');
+}
+function isEndOfThisWeek(idx_day){
+    return idx_day === 7;
+}
+
 function makeNextMonthDayInfo(calendarElement){
-    const tr_week  = calendarElement.querySelector('tr:last-child');
+    const tr_week  = getLastWeek(calendarElement);
     
     const idx_lastDay = lastDayOfThisMonth.getDay();
-    const availableDateCountOfNextMonth = 6 - idx_lastDay;
-    const dateForId = new Date(CalendarStandardDay.getFullYear(),CalendarStandardDay.getMonth()+1, 1 );
+    const availableDateCount = 7 - (idx_lastDay+1);
+    const dateForId = changeMonthOffset(1);;
     
     let dateOfNextMonth = 1;
     let idx_day = idx_lastDay+1;
-    while( dateOfNextMonth <= availableDateCountOfNextMonth ){
+    while( dateOfNextMonth <= availableDateCount ){
         const td_dayColumn = document.createElement('td');
         const id_attr = makeId(dateForId, dateOfNextMonth);
         
@@ -173,16 +238,19 @@ function makeNextMonthDayInfo(calendarElement){
         tr_week.appendChild(td_dayColumn);
         dateOfNextMonth++;
     }
+}
+function getLastWeek(calendarElement){
+    return calendarElement.querySelector('tr:last-child');
+}
 
-}
-function getDayIndexOfFirstDay(calendarElement){
-    return calendarElement.querySelector('table').rows[0].cells.length;
-}
-function getFirstWeek(calendarElement){
-    return calendarElement.querySelector('tbody > tr');
-}
-function addZeroIfOneDigit(number){
-    return (number < 10 ) ? '0'+number : number;
+
+function alertInfo(id_attr){
+    alert(`
+    날짜 : ${id_attr}
+    ${(getHolidayInfo(id_attr)==='')?'공휴일이 아닙니다':getHolidayInfo(id_attr)}
+    일정 : ${ (getTodoInfo(id_attr)) ? getTodoInfo(id_attr) : ''}
+
+`);
 }
 function getHolidayInfo(id_attr){
     let result = '';
@@ -196,69 +264,8 @@ function getHolidayInfo(id_attr){
 function getTodoInfo(id_attr){
     return todoItems[id_attr];
 }
-function alertInfo(id_attr){
-    alert(`
-    날짜 : ${id_attr}
-    ${(getHolidayInfo(id_attr)==='')?'공휴일이 아닙니다':getHolidayInfo(id_attr)}
-    일정 : ${ (getTodoInfo(id_attr)) ? getTodoInfo(id_attr) : ''}
 
-`);
-}
-function settingDateAttr(tdElement, id_attr){
-    tdElement.setAttribute('id', id_attr);
-    tdElement.classList.add('day-column');
-}
-function makeDateHeader(tdElement, id_attr, date, CalendarStandardDay){
-    const div = document.createElement('div');
-    div.classList.add('date-header');
 
-    const span_addTodoIcon = document.createElement('span');
-    span_addTodoIcon.innerHTML = `<i class="fas fa-plus"></i>`;
-    span_addTodoIcon.classList.add("add-todo-icon");
-    span_addTodoIcon.addEventListener('click', function(event){
-        event.stopPropagation();
-        openAddModal(id_attr);
-    })
-
-    const span_holiday = document.createElement('span');
-    span_holiday.classList.add('holiday');
-
-    const span_date = document.createElement('span');
-    span_date.classList.add('date')
-    span_date.innerText = date;
-
-    if( isToday(date, today, CalendarStandardDay)) span_date.classList.add('today')    
-
-    div.appendChild(span_addTodoIcon);
-    div.appendChild(span_holiday);
-    div.appendChild(span_date);
-    
-    tdElement.appendChild(div);
-}
-function openAddModal(id_attr){
-    const modal = document.querySelector('.modal');
-    modal.querySelector('input[type="date"]').value=id_attr;
-    modal.classList.remove('hidden');
-    
-}
-function isToday(date, today, CalendarStandardDay){
-  return today.getDate() === date 
-        && today.getMonth() === CalendarStandardDay.getMonth() 
-        && today.getFullYear() === CalendarStandardDay.getFullYear();
-}
-function makeDateContent(tdElement){
-    const div_dateContent = document.createElement('div');
-    div_dateContent.classList.add('date-content');
-    const todoList = document.createElement('ul');
-    div_dateContent.appendChild(todoList);
-    tdElement.appendChild(div_dateContent);
-}
-function isWeekend(idx_day){
-    return idx_day === 0 || idx_day === 6;
-}
-function isEndOfThisWeek(idx_day){
-    return idx_day === 7;
-}
 
 function connectHolidayInfo(calendarElement){
     holidays.forEach(holiday=>{
@@ -268,6 +275,8 @@ function connectHolidayInfo(calendarElement){
         }
     })
 }
+
+
 
 function connectTodoItems(calendarElement){
     Object.keys(todoItems).forEach(date=>{
@@ -344,6 +353,9 @@ function makeCalendarHeader(calendar){
     div_CalendarHeader.appendChild(span_toNextMonth);
     calendar.appendChild(div_CalendarHeader);
 }
+
+
+
 function changeMonth(off, calendar){
     CalendarStandardDay = changeMonthOffset(off);
     firstDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 1);
@@ -352,9 +364,6 @@ function changeMonth(off, calendar){
     calendar.querySelector('.thisMonthTitle').innerText = makeCurrentMonthInfo(CalendarStandardDay);
     makeThisMonth(calendar);
 }
-
-
-
 
 function makeCurrentMonthInfo(CalendarStandardDay){
     return `${CalendarStandardDay.getMonth()+1}월 ${CalendarStandardDay.getFullYear()}년`;
