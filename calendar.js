@@ -69,7 +69,7 @@ function makeThisMonth(calendarElement){
     
 }
 function setCalendarHeader(calendarElement){
-    const calendarTitle = calendarElement.querySelector(".thisMonthTitle");
+    const calendarTitle = calendarElement.querySelector("#thisMonthTitle");
     calendarTitle.innerText = makeCurrentMonthInfo(CalendarStandardDay);
 }
 
@@ -98,7 +98,7 @@ function makePreMonthDayInfo(calendarElement){
         const td_dayColumn = td_days[idx_day];
         const id_attr = makeId(dateForId, dateOfPreMonth);
         
-        setCommonAttr(td_dayColumn, id_attr);
+        setCommonDayAttr(td_dayColumn, id_attr);
         setNotThisMonthAttr(td_dayColumn);
         setDateHeader(td_dayColumn, id_attr, dateOfPreMonth, CalendarStandardDay);
         
@@ -116,7 +116,8 @@ function makeId(dateObj, date){
 function addZeroIfOneDigit(number){
     return (number < 10 ) ? '0'+number : number;
 }
-function setCommonAttr(tdElement, id_attr){
+function setCommonDayAttr(tdElement, id_attr){
+    tdElement.classList.add('day-column');
     tdElement.setAttribute('id', id_attr);
 }
 function setNotThisMonthAttr(tdElement){
@@ -174,7 +175,7 @@ function makeCurrentMonthDayInfo(calendarElement){
         const td_dayColumn = td_days[idx_day];
         const id_attr = makeId(CalendarStandardDay, date);
 
-        setCommonAttr(td_dayColumn, id_attr);
+        setCommonDayAttr(td_dayColumn, id_attr);
         setDateHeader(td_dayColumn, id_attr, date, CalendarStandardDay);
 
         idx_day++;
@@ -203,7 +204,7 @@ function makeNextMonthDayInfo(calendarElement){
         const td_dayColumn = td_days[idx_day];
         const id_attr = makeId(dateForId, dateOfNextMonth);
         
-        setCommonAttr(td_dayColumn, id_attr);
+        setCommonDayAttr(td_dayColumn, id_attr);
         setNotThisMonthAttr(td_dayColumn);
         setDateHeader(td_dayColumn, id_attr, dateOfNextMonth, CalendarStandardDay);
 
@@ -212,7 +213,10 @@ function makeNextMonthDayInfo(calendarElement){
     }
 }
 function getLastWeek(calendarElement){
-    return calendarElement.querySelector('tr:last-child');
+    const tbody_calendar = calendarElement.querySelector('tbody');
+    const tr_weeks = tbody_calendar.querySelectorAll('tr');
+    
+    return tr_weeks[tr_weeks.length-1];
 }
 
 
@@ -278,6 +282,7 @@ function makeCalendarHeader(calendar){
 
     const span_curMonthInfo = document.createElement('span');
     span_curMonthInfo.classList.add('thisMonthTitle');
+    span_curMonthInfo.setAttribute('id', 'thisMonthTitle');
 
     span_toPreMonth.classList.add('changeMonthIcon');
     span_toNextMonth.classList.add('changeMonthIcon');
@@ -333,7 +338,7 @@ function makeWeek(tr_week){
     for (let idx_day = 0; idx_day < 7; idx_day++) {
         const td_dayColumn = document.createElement('td');
         
-        td_dayColumn.classList.add('day-column');
+        
         makeDateHeader(td_dayColumn);
         makeDateContent(td_dayColumn);
         processingWeekend(idx_day, td_dayColumn);
@@ -390,18 +395,72 @@ function getTodoInfo(id_attr){
 
 
 function changeMonth(off, calendar){
+    const cnt_currentWeeks = calculateCountOfWeeks(CalendarStandardDay);
+    
     CalendarStandardDay = changeMonthOffset(off);
     
     firstDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 1);
     lastDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth() + 1, 0);
 
-    calendar.querySelector('.thisMonthTitle').innerText = makeCurrentMonthInfo(CalendarStandardDay);
+    calendar.querySelector('#thisMonthTitle').innerText = makeCurrentMonthInfo(CalendarStandardDay);
 
-    calendar.querySelector('div').remove();
-    calendar.querySelector('table').remove();
-    
-    makeCalendarFrame(calendar);
+    changeFrame(calendar, cnt_currentWeeks, CalendarStandardDay);
+    removeChildAttr(calendar.querySelector('tbody'));
     makeThisMonth(calendar);
+}
+
+function changeFrame(calendar, cnt_currentWeeks, CalendarStandardDay){
+    const cnt_changeWeeks = calculateCountOfWeeks(CalendarStandardDay);
+    const distanceOfWeeks = cnt_changeWeeks - cnt_currentWeeks;
+
+    if( distanceOfWeeks === 0) return;
+    
+    changeWeeks(distanceOfWeeks, calendar);
+}
+function changeWeeks(offset, calendar){
+    if( offset > 0){
+        for (let index = 0; index < offset; index++) {
+            addWeek(calendar);
+        }
+    }else{
+        offset *= -1;
+        for (let index = 0; index < offset; index++) {
+            removeWeek(calendar);
+        }
+    }
+}
+function addWeek(calendar){
+    const tbody_calendar = calendar.querySelector('tbody');
+
+    const tr_week = document.createElement('tr');
+    makeWeek(tr_week);
+    tbody_calendar.appendChild(tr_week);
+}
+function removeWeek(calendar){
+    const tr_lastWeek = getLastWeek(calendar);
+    tr_lastWeek.remove();
+}
+function removeChildAttr(element){
+    const children = element.childNodes;
+    if(children.length === 0 ) return;
+    if( element.nodeName === "LI") {
+        element.remove();
+        return;
+    }
+    
+    for (let index = 0; index < children.length ; index++) {
+        const child = children[index];
+        
+        if( child.classList ) {
+            child.classList.remove('not-this-month');
+            
+            if( child.classList.contains('holiday') ){
+                child.innerText = "";
+            }
+        }
+
+        removeChildAttr(child)
+    }
 }
 
 function makeCurrentMonthInfo(CalendarStandardDay){
