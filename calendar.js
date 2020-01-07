@@ -60,8 +60,8 @@ function makeCalendar(){
     makeThisMonth(calendar);
 }
 
-// 프레임 만드는 작업 후, 비어있는 각 DOM 노드에 
-// id 속성, date 정보
+// 달력 프레임을 makeCalendarFrame로 만든 후, 비어있는 각 DOM 노드에 
+// date 정보 등을 갱신하는 코드
 function makeThisMonth(calendarElement){
     
     setCalendarHeader(calendarElement);
@@ -85,16 +85,14 @@ function makeDateThisMonth(calendarElement){
 }
 
 function makePreMonthDayInfo(calendarElement){
-    const tbody_calendar = calendarElement.querySelector('tbody');
-    const tr_weeks = tbody_calendar.querySelectorAll('tr');
+    const tr_weeks = calendarElement.querySelectorAll('tr');
     const tr_firstWeek = tr_weeks[0];
+
     const td_days = tr_firstWeek.querySelectorAll('td');
     const dateForId = changeMonthOffset(-1);
     
-    const firstDayOfThisMonth_idx = firstDayOfThisMonth.getDay();
     const preMonthLastDate = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 0).getDate();
-    
-    let dateOfPreMonth = preMonthLastDate - firstDayOfThisMonth_idx + 1;
+    let dateOfPreMonth = startDateOfPreMonth(preMonthLastDate);
     
     let idx_day = 0;
     while( dateOfPreMonth <= preMonthLastDate ){
@@ -103,7 +101,7 @@ function makePreMonthDayInfo(calendarElement){
         
         setCommonDayAttr(td_dayColumn, id_attr);
         setNotThisMonthAttr(td_dayColumn);
-        setDateHeader(td_dayColumn, id_attr, dateOfPreMonth, CalendarStandardDay);
+        setDateHeader(td_dayColumn, dateOfPreMonth, CalendarStandardDay);
         
         idx_day++;
         dateOfPreMonth++;
@@ -112,6 +110,11 @@ function makePreMonthDayInfo(calendarElement){
 }
 function changeMonthOffset(off){
     return new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth()+off, 1);
+}
+function startDateOfPreMonth(preMonthLastDate){
+    const firstDayOfThisMonth_idx = firstDayOfThisMonth.getDay();
+    return preMonthLastDate - firstDayOfThisMonth_idx + 1;
+
 }
 function makeId(dateObj, date){
     return `${dateObj.getFullYear()}-${addZeroIfOneDigit(dateObj.getMonth()+1) }-${addZeroIfOneDigit(date)}`; 
@@ -125,8 +128,7 @@ function setCommonDayAttr(tdElement, id_attr){
 function setNotThisMonthAttr(tdElement){
     tdElement.classList.add('not-this-month');
 }
-function setDateHeader(tdElement, id_attr, date, CalendarStandardDay){
-
+function setDateHeader(tdElement, date, CalendarStandardDay){
     const span_date = tdElement.querySelector('.date')
     span_date.innerText = date;
 
@@ -157,7 +159,7 @@ function makeCurrentMonthDayInfo(calendarElement){
         const id_attr = makeId(CalendarStandardDay, date);
 
         setCommonDayAttr(td_dayColumn, id_attr);
-        setDateHeader(td_dayColumn, id_attr, date, CalendarStandardDay);
+        setDateHeader(td_dayColumn, date, CalendarStandardDay);
 
         idx_day++;
         if( isEndOfThisWeek(idx_day) ){
@@ -187,7 +189,7 @@ function makeNextMonthDayInfo(calendarElement){
         
         setCommonDayAttr(td_dayColumn, id_attr);
         setNotThisMonthAttr(td_dayColumn);
-        setDateHeader(td_dayColumn, id_attr, dateOfNextMonth, CalendarStandardDay);
+        setDateHeader(td_dayColumn, dateOfNextMonth, CalendarStandardDay);
 
         idx_day++;
         dateOfNextMonth++;
@@ -328,7 +330,7 @@ function removeChildAttr(element){
         
         if( child.classList ) {
             child.classList.remove('not-this-month');
-            
+            child.classList.remove('today');
             if( child.classList.contains('holiday') ){
                 child.innerText = "";
             }
