@@ -56,22 +56,23 @@ let lastDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarSta
 
 function makeCalendar(){
     const calendar = document.querySelector('#calendar');
-    const calendarElement = makeCalendarFrame(calendar);
-    makeThisMonth(calendarElement);
+    makeCalendarFrame(calendar);
+    makeThisMonth(calendar);
 }
 
 function makeThisMonth(calendarElement){
-    if( calendarElement.querySelector('tbody') ) // 달이 변경될 때는 현재 달의 element node가 존재하므로, 기존의 table node 삭제
-        calendarElement.querySelector('tbody').remove(); 
     
-    const tbody = document.createElement('tbody');
-    calendarElement.querySelector('table').appendChild(tbody);
-    
+    setCalendarHeader(calendarElement);
     makeDateThisMonth(calendarElement);
     connectHolidayInfo(calendarElement);
     connectTodoItems(calendarElement);
     
 }
+function setCalendarHeader(calendarElement){
+    const calendarTitle = calendarElement.querySelector(".thisMonthTitle");
+    calendarTitle.innerText = makeCurrentMonthInfo(CalendarStandardDay);
+}
+
 // 리팩토링 요소
 function makeDateThisMonth(calendarElement){
     makePreMonthDayInfo(calendarElement);
@@ -82,33 +83,29 @@ function makeDateThisMonth(calendarElement){
 // 현재 createElement로 calendar 프레임을 만드는 부분과 '일' 정보를 계산하는 과정이 같이 있음.
 function makePreMonthDayInfo(calendarElement){
     const tbody_calendar = calendarElement.querySelector('tbody');
-    let tr_week = document.createElement('tr');
+    const tr_weeks = tbody_calendar.querySelectorAll('tr');
+    const tr_firstWeek = tr_weeks[0];
+    const td_days = tr_firstWeek.querySelectorAll('td');
+    const dateForId = changeMonthOffset(-1);
     
     const firstDayOfThisMonth_idx = firstDayOfThisMonth.getDay();
-    const preMonthlastDate = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 0).getDate();
+    const preMonthLastDate = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 0).getDate();
     
-    let dateOfPreMonth = preMonthlastDate - firstDayOfThisMonth_idx + 1;
+    let dateOfPreMonth = preMonthLastDate - firstDayOfThisMonth_idx + 1;
     
     let idx_day = 0;
-    while( dateOfPreMonth <= preMonthlastDate ){
-        const td_dayColumn = document.createElement('td');
-        const dateForId = changeMonthOffset(-1);
+    while( dateOfPreMonth <= preMonthLastDate ){
+        const td_dayColumn = td_days[idx_day];
         const id_attr = makeId(dateForId, dateOfPreMonth);
         
-        settingDateAttr(td_dayColumn, id_attr);
-        makeDateHeader(td_dayColumn, id_attr, dateOfPreMonth, CalendarStandardDay);
-        makeDateContent(td_dayColumn);
+        setCommonAttr(td_dayColumn, id_attr);
+        setNotThisMonthAttr(td_dayColumn);
+        setDateHeader(td_dayColumn, id_attr, dateOfPreMonth, CalendarStandardDay);
         
-        processingWeekend(idx_day, td_dayColumn);
         idx_day++;
-        
         dateOfPreMonth++;
         
-        td_dayColumn.classList.add('not-this-month');
-        tr_week.appendChild(td_dayColumn);
     }
-
-    tbody_calendar.appendChild(tr_week);
 }
 function changeMonthOffset(off){
     return new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth()+off, CalendarStandardDay.getDate());
@@ -119,37 +116,24 @@ function makeId(dateObj, date){
 function addZeroIfOneDigit(number){
     return (number < 10 ) ? '0'+number : number;
 }
-function settingDateAttr(tdElement, id_attr){
+function setCommonAttr(tdElement, id_attr){
     tdElement.setAttribute('id', id_attr);
-    tdElement.classList.add('day-column');
 }
-function makeDateHeader(tdElement, id_attr, date, CalendarStandardDay){
-    const div = document.createElement('div');
-    div.classList.add('date-header');
+function setNotThisMonthAttr(tdElement){
+    tdElement.classList.add('not-this-month');
+}
+function setDateHeader(tdElement, id_attr, date, CalendarStandardDay){
 
-    const span_addTodoIcon = document.createElement('span');
-    span_addTodoIcon.innerHTML = `<i class="fas fa-plus"></i>`;
-    span_addTodoIcon.classList.add("add-todo-icon");
+    const span_addTodoIcon = tdElement.querySelector('.add-todo-icon')
     span_addTodoIcon.addEventListener('click', function(event){
         event.stopPropagation();
         openAddModal(id_attr);
     })
 
-    const span_holiday = document.createElement('span');
-    span_holiday.classList.add('holiday');
-
-    const span_date = document.createElement('span');
-    span_date.classList.add('date')
+    const span_date = tdElement.querySelector('.date')
     span_date.innerText = date;
-    // span_date.innerText = id_attr;
 
     if( isToday(date, today, CalendarStandardDay)) span_date.classList.add('today')    
-
-    div.appendChild(span_addTodoIcon);
-    div.appendChild(span_holiday);
-    div.appendChild(span_date);
-    
-    tdElement.appendChild(div);
 }
 function openAddModal(id_attr){
     const modal = document.querySelector('.modal');
@@ -169,57 +153,46 @@ function makeDateContent(tdElement){
     div_dateContent.appendChild(todoList);
     tdElement.appendChild(div_dateContent);
 }
-function processingWeekend(date, td_dayColumn){
-    if( isWeekend(date) ){
+function processingWeekend(idx_day, td_dayColumn){
+    if( isWeekend(idx_day) ){
         td_dayColumn.classList.add('weekend');
     }
 }
 function isWeekend(idx_day){
     return idx_day === 0 || idx_day === 6;
 }
-// 리팩토링 요소
+
 function makeCurrentMonthDayInfo(calendarElement){
-    const tbody = calendarElement.querySelector('tbody');
+    const tbody_calendar = calendarElement.querySelector('tbody');
+    const tr_weeks = tbody_calendar.querySelectorAll('tr');
 
+    let tr_targetWeek = tr_weeks[0];
+    let td_days = tr_targetWeek.querySelectorAll('td');
     let idx_day = firstDayOfThisMonth.getDay();
-    let tr_week = getFirstWeek(calendarElement);
-
-    for( let date = 1 ; date <= lastDayOfThisMonth.getDate() ; date++ ){
-        const td_dayColumn = document.createElement('td');
+    
+    for( let date = 1, week = 0 ; date <= lastDayOfThisMonth.getDate() ; date++ ){
+        const td_dayColumn = td_days[idx_day];
         const id_attr = makeId(CalendarStandardDay, date);
-        
-        td_dayColumn.addEventListener('click', function(event){
-            event.stopPropagation();
-            alertInfo(id_attr);
-        })
 
-        settingDateAttr(td_dayColumn, id_attr);
-        makeDateHeader(td_dayColumn, id_attr, date, CalendarStandardDay);
-        makeDateContent(td_dayColumn);
+        setCommonAttr(td_dayColumn, id_attr);
+        setDateHeader(td_dayColumn, id_attr, date, CalendarStandardDay);
 
-        processingWeekend(idx_day, td_dayColumn);
-        
-        tr_week.appendChild(td_dayColumn);
-        
         idx_day++;
         if( isEndOfThisWeek(idx_day) ){
             idx_day = 0;
-            tbody.appendChild(tr_week);
-            tr_week = document.createElement('tr');
+            week++;
+            tr_targetWeek = tr_weeks[week];
+            td_days = tr_targetWeek.querySelectorAll('td');
         }
     }
-    tbody.appendChild(tr_week);
-}
-function getFirstWeek(calendarElement){
-    return calendarElement.querySelector('tbody > tr');
 }
 function isEndOfThisWeek(idx_day){
     return idx_day === 7;
 }
-// 리팩토링 요소
+
 function makeNextMonthDayInfo(calendarElement){
     const tr_week  = getLastWeek(calendarElement);
-    
+    const td_days = tr_week.querySelectorAll('td');
     const idx_lastDay = lastDayOfThisMonth.getDay();
     const availableDateCount = 7 - (idx_lastDay+1);
     const dateForId = changeMonthOffset(1);;
@@ -227,18 +200,14 @@ function makeNextMonthDayInfo(calendarElement){
     let dateOfNextMonth = 1;
     let idx_day = idx_lastDay+1;
     while( dateOfNextMonth <= availableDateCount ){
-        const td_dayColumn = document.createElement('td');
+        const td_dayColumn = td_days[idx_day];
         const id_attr = makeId(dateForId, dateOfNextMonth);
         
-        td_dayColumn.classList.add('not-this-month');
-        settingDateAttr(td_dayColumn, id_attr);
-        makeDateHeader(td_dayColumn, id_attr, dateOfNextMonth, CalendarStandardDay);
-        makeDateContent(td_dayColumn);
+        setCommonAttr(td_dayColumn, id_attr);
+        setNotThisMonthAttr(td_dayColumn);
+        setDateHeader(td_dayColumn, id_attr, dateOfNextMonth, CalendarStandardDay);
 
-        processingWeekend(idx_day, td_dayColumn);
         idx_day++;
-
-        tr_week.appendChild(td_dayColumn);
         dateOfNextMonth++;
     }
 }
@@ -246,27 +215,6 @@ function getLastWeek(calendarElement){
     return calendarElement.querySelector('tr:last-child');
 }
 
-
-function alertInfo(id_attr){
-    alert(`
-    날짜 : ${id_attr}
-    ${(getHolidayInfo(id_attr)==='')?'공휴일이 아닙니다':getHolidayInfo(id_attr)}
-    일정 : ${ (getTodoInfo(id_attr)) ? getTodoInfo(id_attr) : ''}
-
-`);
-}
-function getHolidayInfo(id_attr){
-    let result = '';
-    holidays.forEach(holiday=>{
-        if( holiday.date === id_attr) {
-            result = holiday.event;
-        }
-    })
-    return result;
-}
-function getTodoInfo(id_attr){
-    return todoItems[id_attr];
-}
 
 
 
@@ -278,8 +226,6 @@ function connectHolidayInfo(calendarElement){
         }
     })
 }
-
-
 
 function connectTodoItems(calendarElement){
     Object.keys(todoItems).forEach(date=>{
@@ -332,7 +278,6 @@ function makeCalendarHeader(calendar){
 
     const span_curMonthInfo = document.createElement('span');
     span_curMonthInfo.classList.add('thisMonthTitle');
-    // span_curMonthInfo.innerText = makeCurrentMonthInfo(CalendarStandardDay);
 
     span_toPreMonth.classList.add('changeMonthIcon');
     span_toNextMonth.classList.add('changeMonthIcon');
@@ -364,50 +309,82 @@ function makeCalendarContentHeader(table_calendar){
 }
 function makeCalendarContentBody(table_calendar){
     const tbody_calendar = document.createElement('tbody');
-    table_calendar.appendChild(tbody_calendar);
-
+    
     const cnt_weeks = calculateCountOfWeeks(CalendarStandardDay);
-
     for (let index = 0; index < cnt_weeks; index++) {
         const tr_week = document.createElement('tr');
         makeWeek(tr_week);
         tbody_calendar.appendChild(tr_week);
     }
-    // let tr_week = document.createElement('tr');
-    
-    // const firstDayOfThisMonth_idx = firstDayOfThisMonth.getDay();
-    // const preMonthlastDate = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 0).getDate();
-    
-    // let dateOfPreMonth = preMonthlastDate - firstDayOfThisMonth_idx + 1;
-    
-    // let idx_day = 0;
-    // while( dateOfPreMonth <= preMonthlastDate ){
-    //     const td_dayColumn = document.createElement('td');
-    //     const dateForId = changeMonthOffset(-1);
-    //     const id_attr = makeId(dateForId, dateOfPreMonth);
-        
-    //     settingDateAttr(td_dayColumn, id_attr);
-    //     makeDateHeader(td_dayColumn, id_attr, dateOfPreMonth, CalendarStandardDay);
-    //     makeDateContent(td_dayColumn);
-        
-    //     processingWeekend(idx_day, td_dayColumn);
-    //     idx_day++;
-        
-    //     dateOfPreMonth++;
-        
-    //     td_dayColumn.classList.add('not-this-month');
-    //     tr_week.appendChild(td_dayColumn);
-    // }
-
-    // tbody_calendar.appendChild(tr_week);
-
+    table_calendar.appendChild(tbody_calendar);
 }
 function calculateCountOfWeeks(CalendarStandardDay){
-    return 5;
+    const idx_startDay = CalendarStandardDay.getDay();
+    const cnt_dateOfPreMonth = idx_startDay + 1;
+    const cnt_dateOfThisMonth = lastDayOfThisMonth.getDate();
+    const cnt_totalDate = cnt_dateOfPreMonth + cnt_dateOfThisMonth;
+    const cnt_totalWeeds = Math.floor(cnt_totalDate/7);
+    
+    return ( cnt_totalDate % 7 !== 0) ?  cnt_totalWeeds + 1 : cnt_totalWeeds;
 }
 function makeWeek(tr_week){
-    
+    for (let idx_day = 0; idx_day < 7; idx_day++) {
+        const td_dayColumn = document.createElement('td');
+        
+        td_dayColumn.classList.add('day-column');
+        makeDateHeader(td_dayColumn);
+        makeDateContent(td_dayColumn);
+        processingWeekend(idx_day, td_dayColumn);
+
+        td_dayColumn.addEventListener('click', function(event){
+            event.stopPropagation();
+            
+            alertInfo(event.target.id);
+        })
+
+        tr_week.appendChild(td_dayColumn);
+    }
 }
+function makeDateHeader(tdElement){
+    const div = document.createElement('div');
+    div.classList.add('date-header');
+
+    const span_addTodoIcon = document.createElement('span');
+    span_addTodoIcon.innerHTML = `<i class="fas fa-plus"></i>`;
+    span_addTodoIcon.classList.add("add-todo-icon");
+
+    const span_holiday = document.createElement('span');
+    span_holiday.classList.add('holiday');
+
+    const span_date = document.createElement('span');
+    span_date.classList.add('date')
+
+    div.appendChild(span_addTodoIcon);
+    div.appendChild(span_holiday);
+    div.appendChild(span_date);
+    
+    tdElement.appendChild(div);
+}
+function alertInfo(id_attr){
+    alert(`
+    날짜 : ${id_attr}
+    ${(getHolidayInfo(id_attr)==='')?'공휴일이 아닙니다':getHolidayInfo(id_attr)}
+    일정 : ${ (getTodoInfo(id_attr)) ? getTodoInfo(id_attr) : ''}
+    `);
+}
+function getHolidayInfo(id_attr){
+    let result = '';
+    holidays.forEach(holiday=>{
+        if( holiday.date === id_attr) {
+            result = holiday.event;
+        }
+    })
+    return result;
+}
+function getTodoInfo(id_attr){
+    return todoItems[id_attr];
+}
+
 
 
 function changeMonth(off, calendar){
