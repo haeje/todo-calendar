@@ -55,7 +55,8 @@ let firstDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarSt
 let lastDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth() + 1, 0);
 
 function makeCalendar(){
-    const calendarElement = makeCalendarFrame();
+    const calendar = document.querySelector('#calendar');
+    const calendarElement = makeCalendarFrame(calendar);
     makeThisMonth(calendarElement);
 }
 
@@ -71,13 +72,14 @@ function makeThisMonth(calendarElement){
     connectTodoItems(calendarElement);
     
 }
+// 리팩토링 요소
 function makeDateThisMonth(calendarElement){
     makePreMonthDayInfo(calendarElement);
     makeCurrentMonthDayInfo(calendarElement);
     makeNextMonthDayInfo(calendarElement);
 }
 
-
+// 현재 createElement로 calendar 프레임을 만드는 부분과 '일' 정보를 계산하는 과정이 같이 있음.
 function makePreMonthDayInfo(calendarElement){
     const tbody_calendar = calendarElement.querySelector('tbody');
     let tr_week = document.createElement('tr');
@@ -175,7 +177,7 @@ function processingWeekend(date, td_dayColumn){
 function isWeekend(idx_day){
     return idx_day === 0 || idx_day === 6;
 }
-
+// 리팩토링 요소
 function makeCurrentMonthDayInfo(calendarElement){
     const tbody = calendarElement.querySelector('tbody');
 
@@ -214,7 +216,7 @@ function getFirstWeek(calendarElement){
 function isEndOfThisWeek(idx_day){
     return idx_day === 7;
 }
-
+// 리팩토링 요소
 function makeNextMonthDayInfo(calendarElement){
     const tr_week  = getLastWeek(calendarElement);
     
@@ -308,25 +310,11 @@ function isSameMonth(date, CalendarStandardDay){
 }
 
 
-// 달력의 정적인 프레임 만드는 부분입니다.
-function makeCalendarFrame(){
-    const days = ['일', '월', '화', '수', '목', '금', '토'];
-    const calendar = document.querySelector('#calendar');
+function makeCalendarFrame(calendar){
+    
     makeCalendarHeader(calendar);
-
-
-    const table_calendar = document.createElement('table');
-    const thead_calendar = document.createElement('thead');
+    makeCalendarContent(calendar);
     
-    days.forEach( day =>{
-        const th_dayHeader = document.createElement('th');
-        th_dayHeader.innerText = day;
-        thead_calendar.appendChild(th_dayHeader);
-    });
-    
-    table_calendar.appendChild(thead_calendar);
-    calendar.appendChild(table_calendar);
-    console.log(calendar);
     
     return calendar;
 }
@@ -344,7 +332,7 @@ function makeCalendarHeader(calendar){
 
     const span_curMonthInfo = document.createElement('span');
     span_curMonthInfo.classList.add('thisMonthTitle');
-    span_curMonthInfo.innerText = makeCurrentMonthInfo(CalendarStandardDay);
+    // span_curMonthInfo.innerText = makeCurrentMonthInfo(CalendarStandardDay);
 
     span_toPreMonth.classList.add('changeMonthIcon');
     span_toNextMonth.classList.add('changeMonthIcon');
@@ -354,7 +342,25 @@ function makeCalendarHeader(calendar){
     div_CalendarHeader.appendChild(span_toNextMonth);
     calendar.appendChild(div_CalendarHeader);
 }
+function makeCalendarContent(calendar){
+    const table_calendar = document.createElement('table');
+    calendar.appendChild(table_calendar);
+    
+    makeCalendarContentHeader(table_calendar);
+    
+}
+function makeCalendarContentHeader(table_calendar){
+    const thead_calendar = document.createElement('thead');
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
 
+    days.forEach( day =>{
+        const th_dayHeader = document.createElement('th');
+        th_dayHeader.innerText = day;
+        thead_calendar.appendChild(th_dayHeader);
+    });
+
+    table_calendar.appendChild(thead_calendar);
+}
 
 
 function changeMonth(off, calendar){
