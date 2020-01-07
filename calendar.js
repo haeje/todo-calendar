@@ -108,7 +108,7 @@ function makePreMonthDayInfo(calendarElement){
     }
 }
 function changeMonthOffset(off){
-    return new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth()+off, CalendarStandardDay.getDate());
+    return new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth()+off, 1);
 }
 function makeId(dateObj, date){
     return `${dateObj.getFullYear()}-${addZeroIfOneDigit(dateObj.getMonth()+1) }-${addZeroIfOneDigit(date)}`; 
@@ -182,7 +182,7 @@ function makeCurrentMonthDayInfo(calendarElement){
             idx_day = 0;
             week++;
             tr_targetWeek = tr_weeks[week];
-            td_days = tr_targetWeek.querySelectorAll('td');
+            if( week < tr_weeks.length ) td_days = tr_targetWeek.querySelectorAll('td');
         }
     }
 }
@@ -195,7 +195,7 @@ function makeNextMonthDayInfo(calendarElement){
     const td_days = tr_week.querySelectorAll('td');
     const idx_lastDay = lastDayOfThisMonth.getDay();
     const availableDateCount = 7 - (idx_lastDay+1);
-    const dateForId = changeMonthOffset(1);;
+    const dateForId = changeMonthOffset(1);
     
     let dateOfNextMonth = 1;
     let idx_day = idx_lastDay+1;
@@ -311,6 +311,7 @@ function makeCalendarContentBody(table_calendar){
     const tbody_calendar = document.createElement('tbody');
     
     const cnt_weeks = calculateCountOfWeeks(CalendarStandardDay);
+    
     for (let index = 0; index < cnt_weeks; index++) {
         const tr_week = document.createElement('tr');
         makeWeek(tr_week);
@@ -320,7 +321,8 @@ function makeCalendarContentBody(table_calendar){
 }
 function calculateCountOfWeeks(CalendarStandardDay){
     const idx_startDay = CalendarStandardDay.getDay();
-    const cnt_dateOfPreMonth = idx_startDay + 1;
+    
+    const cnt_dateOfPreMonth = idx_startDay;
     const cnt_dateOfThisMonth = lastDayOfThisMonth.getDate();
     const cnt_totalDate = cnt_dateOfPreMonth + cnt_dateOfThisMonth;
     const cnt_totalWeeds = Math.floor(cnt_totalDate/7);
@@ -389,10 +391,16 @@ function getTodoInfo(id_attr){
 
 function changeMonth(off, calendar){
     CalendarStandardDay = changeMonthOffset(off);
+    
     firstDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 1);
     lastDayOfThisMonth = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth() + 1, 0);
 
     calendar.querySelector('.thisMonthTitle').innerText = makeCurrentMonthInfo(CalendarStandardDay);
+
+    calendar.querySelector('div').remove();
+    calendar.querySelector('table').remove();
+    
+    makeCalendarFrame(calendar);
     makeThisMonth(calendar);
 }
 
