@@ -347,6 +347,7 @@ function makeCalendarContent(calendar){
     calendar.appendChild(table_calendar);
     
     makeCalendarContentHeader(table_calendar);
+    makeCalendarContentBody(table_calendar);
     
 }
 function makeCalendarContentHeader(table_calendar){
@@ -360,6 +361,52 @@ function makeCalendarContentHeader(table_calendar){
     });
 
     table_calendar.appendChild(thead_calendar);
+}
+function makeCalendarContentBody(table_calendar){
+    const tbody_calendar = document.createElement('tbody');
+    table_calendar.appendChild(tbody_calendar);
+
+    const cnt_weeks = calculateCountOfWeeks(CalendarStandardDay);
+
+    for (let index = 0; index < cnt_weeks; index++) {
+        const tr_week = document.createElement('tr');
+        makeWeek(tr_week);
+        tbody_calendar.appendChild(tr_week);
+    }
+    // let tr_week = document.createElement('tr');
+    
+    // const firstDayOfThisMonth_idx = firstDayOfThisMonth.getDay();
+    // const preMonthlastDate = new Date(CalendarStandardDay.getFullYear(), CalendarStandardDay.getMonth(), 0).getDate();
+    
+    // let dateOfPreMonth = preMonthlastDate - firstDayOfThisMonth_idx + 1;
+    
+    // let idx_day = 0;
+    // while( dateOfPreMonth <= preMonthlastDate ){
+    //     const td_dayColumn = document.createElement('td');
+    //     const dateForId = changeMonthOffset(-1);
+    //     const id_attr = makeId(dateForId, dateOfPreMonth);
+        
+    //     settingDateAttr(td_dayColumn, id_attr);
+    //     makeDateHeader(td_dayColumn, id_attr, dateOfPreMonth, CalendarStandardDay);
+    //     makeDateContent(td_dayColumn);
+        
+    //     processingWeekend(idx_day, td_dayColumn);
+    //     idx_day++;
+        
+    //     dateOfPreMonth++;
+        
+    //     td_dayColumn.classList.add('not-this-month');
+    //     tr_week.appendChild(td_dayColumn);
+    // }
+
+    // tbody_calendar.appendChild(tr_week);
+
+}
+function calculateCountOfWeeks(CalendarStandardDay){
+    return 5;
+}
+function makeWeek(tr_week){
+    
 }
 
 
