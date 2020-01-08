@@ -1,0 +1,24 @@
+{
+  "name": "todo-calendar",
+  "version": "1.0.0",
+  "description": "달력 기능을 구현한 브랜치입니다.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haeje/todo-calendar.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/haeje/todo-calendar/issues"
+  },
+  "homepage": "https://github.com/haeje/todo-calendar#readme",
+  "dependencies": {
+    "ejs": "^3.0.1",
+    "express": "^4.17.1"
+  }
+}

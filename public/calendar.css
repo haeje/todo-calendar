@@ -21,9 +21,7 @@ th{
   margin: 0 auto;
 }
 
-.add-todo-icon{
-  visibility: hidden;
-}
+
 
   .day-column:hover .add-todo-icon{ visibility: visible }
 
@@ -60,15 +58,16 @@ th{
   }
 
 .add-todo-icon{
+  visibility: hidden;
   font-size: 16px;
   margin-left: 5px;
-  padding: 0 5px;
   border: 2px solid rgba(55, 53, 47, 0.16);
   border-radius: 5px;
   color: rgba(55, 53, 47, 0.4);
-  
 }
-
+i{
+  margin: 0 5px;
+}
 
 .date{
   margin-right: 10px;
