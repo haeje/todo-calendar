@@ -46,7 +46,7 @@ function makePreMonthDayInfo(calendarElement, CalendarStandardDay){
         
         setCommonDayAttr(td_dayColumn, id_attr);
         setNotThisMonthAttr(td_dayColumn);
-        setDateHeader(td_dayColumn, dateOfPreMonth, CalendarStandardDay);
+        setDate(td_dayColumn, dateOfPreMonth);
         
         idx_day++;
         dateOfPreMonth++;
@@ -63,7 +63,7 @@ function setCommonDayAttr(tdElement, id_attr){
 function setNotThisMonthAttr(tdElement){
     tdElement.classList.add('not-this-month');
 }
-function setDateHeader(tdElement, date, CalendarStandardDay){
+function setDate(tdElement, date){
     const span_date = tdElement.querySelector('.date')
     span_date.innerText = date;
 
@@ -83,7 +83,7 @@ function makeCurrentMonthDayInfo(calendarElement, CalendarStandardDay){
         const id_attr = utils.makeIdByDate(CalendarStandardDay, date);
 
         setCommonDayAttr(td_dayColumn, id_attr);
-        setDateHeader(td_dayColumn, date, CalendarStandardDay);
+        setDate(td_dayColumn, date);
 
         idx_day++;
         if( isEndOfThisWeek(idx_day) ){
@@ -106,16 +106,13 @@ function makeNextMonthDayInfo(calendarElement, CalendarStandardDay){
     const lastDay = data.lastDayOfThisMonth.getDay();
     const availableDateCount = 7 - (lastDay+1);
     let idx_day = lastDay + 1;
-    for (let dateOfNextMonth = 1; dateOfNextMonth < availableDateCount; dateOfNextMonth++) {
+    for (let dateOfNextMonth = 1; idx_day < td_days.length; dateOfNextMonth++, idx_day++) {
         const td_dayColumn = td_days[idx_day];
         const id_attr = utils.makeIdByDate(dateForId, dateOfNextMonth);
         
         setCommonDayAttr(td_dayColumn, id_attr);
         setNotThisMonthAttr(td_dayColumn);
-        setDateHeader(td_dayColumn, dateOfNextMonth, CalendarStandardDay);
-
-        idx_day++;
-        dateOfNextMonth++;
+        setDate(td_dayColumn, dateOfNextMonth);
     }
     
 }
