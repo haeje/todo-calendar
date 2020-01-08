@@ -33,12 +33,14 @@ separate-data-frame 이후 개발한 브랜치입니다.
 
 구동 방법
 저장소에서 프로젝트를 다운받고 modularization 브랜치로 이동합니다.  
-```git clone https://github.com/haeje/todo-calendar.git
+```
+git clone https://github.com/haeje/todo-calendar.git
 git checkout modularization
 ```
 
 필요한 모듈을 설치하고 서버를 실행합니다.   
-```npm install
+```
+npm install
 npm start
 ```
 
